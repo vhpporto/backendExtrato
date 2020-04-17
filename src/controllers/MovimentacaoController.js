@@ -1,9 +1,22 @@
 const db = require("../database/connection");
+var nodemailer = require("nodemailer");
+
+const email = "meuextratorn@gmail.com";
+
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: email,
+    pass: "g72tkm00",
+  },
+});
+
 
 module.exports = {
   async buscaGeral(req, res) {
     const sql = await `call sp_busca_movimentacoes()`;
-    db.query(sql, (err, result) => {
+    await db.query(sql, (err, result) => {
       if (err) throw err;
       res.json(result[0]);
     });
@@ -11,20 +24,41 @@ module.exports = {
 
   async create(req, res) {
     const { descricao, valor, data, entrada, categoria } = req.body;
+    const valorFinal = valor / 100;
     const sql = `call sp_insere_movimentacao(${descricao}, ${valor}, ${categoria}, '${data}', ${entrada})`;
-    db.query(sql, (err, result, fields) => {
+    const dataFormatada = data.split('-')
+    await db.query(sql, (err, result, fields) => {
       if (err) throw err;
 
+      const mailOptions = {
+        from: email,
+        to: "vhpporto@gmail.com",
+        subject: "Nova movimentação",
+        html: `<h1>Nova movimentação</h1> <h3>${descricao} <br> R$ ${parseFloat(valorFinal).toFixed(2).toLocaleString("pt-BR", {
+          currency: "BRL",
+          minimumFractionDigits: 2,
+        })} <br> Data de lançamento ${dataFormatada[2]}/${dataFormatada[1]}/${dataFormatada[0]} <br> </h3>`,
+      };
+      
       res.json(result[0]);
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email enviado..' + info.response);
+
+        }
+      });
     });
   },
 
   async buscaMovimentacoesPeriodo(req, res) {
     const { dataIni, dataFim } = req.body;
-    const sql = (`call sp_busca_movimentacao_periodo('${dataIni}', '${dataFim}')`)
-    db.query(sql, (err, result) => {
+    const sql = `call sp_busca_movimentacao_periodo('${dataIni}', '${dataFim}')`;
+    await db.query(sql, (err, result) => {
       if (err) throw err;
+
       res.json(result[0]);
-    })
-  }
+    });
+  },
 };
