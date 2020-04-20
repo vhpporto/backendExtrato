@@ -1,6 +1,6 @@
 const db = require("../database/connection");
-const { PASSWORD, EMAIL } = require("../../.env");
 const nodemailer = require("nodemailer");
+
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
