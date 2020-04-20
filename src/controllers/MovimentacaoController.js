@@ -1,21 +1,18 @@
 const db = require("../database/connection");
-var nodemailer = require("nodemailer");
-
-const email = "meuextratorn@gmail.com";
-
+const { PASSWORD, EMAIL } = require("../../.env");
+const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: email,
-    pass: "g72tkm00",
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD,
   },
 });
 
-
 module.exports = {
   async buscaGeral(req, res) {
-    const sql = await `call sp_busca_movimentacoes()`;
+    const sql = await `CALL sp_busca_movimentacoes()`;
     await db.query(sql, (err, result) => {
       if (err) throw err;
       res.json(result[0]);
@@ -26,27 +23,32 @@ module.exports = {
     const { descricao, valor, data, entrada, categoria } = req.body;
     const valorFinal = valor / 100;
     const sql = `call sp_insere_movimentacao(${descricao}, ${valor}, ${categoria}, '${data}', ${entrada})`;
-    const dataFormatada = data.split('-')
+    const dataFormatada = data.split("-");
     await db.query(sql, (err, result, fields) => {
       if (err) throw err;
 
       const mailOptions = {
-        from: email,
+        from: process.env.EMAIL,
         to: "vhpporto@gmail.com",
         subject: "Nova movimentação",
-        html: `<h1>Nova movimentação</h1> <h3>${descricao} <br> R$ ${parseFloat(valorFinal).toFixed(2).toLocaleString("pt-BR", {
-          currency: "BRL",
-          minimumFractionDigits: 2,
-        })} <br> Data de lançamento ${dataFormatada[2]}/${dataFormatada[1]}/${dataFormatada[0]} <br> </h3>`,
+        html: `<h1>Nova movimentação</h1> <h3>${descricao} <br> R$ ${parseFloat(
+          valorFinal
+        )
+          .toFixed(2)
+          .toLocaleString("pt-BR", {
+            currency: "BRL",
+            minimumFractionDigits: 2,
+          })} <br> Data de lançamento ${dataFormatada[2]}/${dataFormatada[1]}/${
+          dataFormatada[0]
+        } <br> </h3>`,
       };
-      
+
       res.json(result[0]);
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           console.log(error);
         } else {
-          console.log('Email enviado..' + info.response);
-
+          console.log("Email enviado.." + info.response);
         }
       });
     });
@@ -54,7 +56,7 @@ module.exports = {
 
   async buscaMovimentacoesPeriodo(req, res) {
     const { dataIni, dataFim } = req.body;
-    const sql = `call sp_busca_movimentacao_periodo('${dataIni}', '${dataFim}')`;
+    const sql = `CALL sp_busca_movimentacao_periodo('${dataIni}', '${dataFim}')`;
     await db.query(sql, (err, result) => {
       if (err) throw err;
 
