@@ -1,7 +1,6 @@
 const db = require("../database/connection");
 const nodemailer = require("nodemailer");
 
-
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -43,14 +42,20 @@ module.exports = {
         } <br> </h3>`,
       };
 
+      const [{ erro }] = result[0];
+      console.log(erro);
+
       res.json(result[0]);
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log("Email enviado.." + info.response);
-        }
-      });
+
+      if (erro === 0) {
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email enviado.." + info.response);
+          }
+        });
+      }
     });
   },
 
@@ -63,4 +68,14 @@ module.exports = {
       res.json(result[0]);
     });
   },
+
+  async delete(req, res) {
+    const { id } = req.params;
+    const sql = (`CALL sp_remove_movimentaco(${id})`);
+    db.query(sql, (err, result) => {
+      if (err) throw err;
+      console.log('id ' + id)
+      res.status(200).send('Movimentação removida!')
+    })
+  }
 };
