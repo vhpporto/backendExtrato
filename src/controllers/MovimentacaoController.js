@@ -2,10 +2,12 @@ const db = require("../database/connection");
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
   auth: {
     user: process.env.EMAIL,
-    pass: process.env.PASSWORD,
+    pass: process.env.EMAIL_PASSWORD,
+    // user: process.env.EMAIL,
+    // pass: process.env.EMAIL_PASSWORD,
   },
 });
 
@@ -25,7 +27,6 @@ module.exports = {
     const dataFormatada = data.split("-");
     await db.query(sql, (err, result, fields) => {
       if (err) throw err;
-
       const mailOptions = {
         from: process.env.EMAIL,
         to: "vhpporto@gmail.com",
@@ -43,7 +44,6 @@ module.exports = {
       };
 
       const [{ erro }] = result[0];
-      console.log(erro);
 
       res.json(result[0]);
 
@@ -65,17 +65,27 @@ module.exports = {
     await db.query(sql, (err, result) => {
       if (err) throw err;
 
+      console.log(result);
       res.json(result[0]);
     });
   },
 
   async delete(req, res) {
     const { id } = req.params;
-    const sql = (`CALL sp_remove_movimentaco(${id})`);
+    const sql = `CALL sp_remove_movimentacao(${id})`;
     db.query(sql, (err, result) => {
       if (err) throw err;
-      console.log('id ' + id)
-      res.status(200).send('Movimentação removida!')
-    })
-  }
+      console.log("id " + id);
+      res.status(200).send("Movimentação removida!");
+    });
+  },
+
+  async update(req, res) {
+    const { id } = req.params;
+    const sql = `CALL sp_atualiza_movimentacao(${id})`;
+    db.query(sql, (err, result) => {
+      if (err) throw err;
+      res.json(result[0]);
+    });
+  },
 };

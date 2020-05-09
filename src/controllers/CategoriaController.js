@@ -2,7 +2,7 @@ const db = require("../database/connection");
 
 module.exports = {
   async despesas(req, res) {
-    const sql = (`CALL sp_busca_relatorio_categoria(0)`);
+    const sql = `CALL sp_busca_relatorio_categoria(0)`;
 
     db.query(sql, (err, result) => {
       if (err) throw err;
@@ -10,7 +10,7 @@ module.exports = {
     });
   },
   async receitas(req, res) {
-    const sql = (`CALL sp_busca_relatorio_categoria(1)`);
+    const sql = `CALL sp_busca_relatorio_categoria(1)`;
 
     db.query(sql, (err, result) => {
       if (err) throw err;
