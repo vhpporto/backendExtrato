@@ -13,7 +13,8 @@ const transporter = nodemailer.createTransport({
 
 module.exports = {
   async buscaGeral(req, res) {
-    const sql = await `CALL sp_busca_movimentacoes()`;
+    const { id } = req.body;
+    const sql = await `CALL sp_busca_movimentacoes(${id})`;
     await db.query(sql, (err, result) => {
       if (err) throw err;
       res.json(result[0]);
@@ -21,9 +22,9 @@ module.exports = {
   },
 
   async create(req, res) {
-    const { descricao, valor, data, entrada, categoria } = req.body;
+    const { descricao, valor, data, entrada, categoria, id } = req.body;
     const valorFinal = valor / 100;
-    const sql = `call sp_insere_movimentacao(${descricao}, ${valor}, ${categoria}, '${data}', ${entrada})`;
+    const sql = `call sp_insere_movimentacao(${descricao}, ${valor}, ${categoria}, '${data}', ${entrada}, ${id})`;
     const dataFormatada = data.split("-");
     await db.query(sql, (err, result, fields) => {
       if (err) throw err;

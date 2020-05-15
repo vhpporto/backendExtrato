@@ -5,6 +5,7 @@ const MovimentacaoController = require("./controllers/MovimentacaoController");
 const CategoriaController = require("./controllers/CategoriaController");
 const LocalizacaoController = require("./controllers/LocalizacaoController");
 const UserController = require("./controllers/UserController");
+const PasswordController = require("./controllers/PasswordController");
 
 const routes = express.Router();
 
@@ -13,17 +14,18 @@ routes.post("/registro", UserController.create);
 
 routes.post("/localizacao", LocalizacaoController.index);
 
-routes.get("/extrato", MovimentacaoController.buscaGeral);
+routes.get("/categoriadespesas", CategoriaController.despesas);
+routes.get("/categoriareceitas", CategoriaController.receitas);
+
+routes.post("/esqueceusenha", PasswordController.esqueceuSenha);
+
+routes.delete("/delete/:id", MovimentacaoController.delete);
+routes.put("/altera/:id", MovimentacaoController.update);
+routes.post("/extrato", MovimentacaoController.buscaGeral);
 routes.post(
   "/extratoperiodo",
   MovimentacaoController.buscaMovimentacoesPeriodo
 );
-routes.delete("/delete/:id", MovimentacaoController.delete);
-
-routes.get("/categoriadespesas", CategoriaController.despesas);
-routes.get("/categoriareceitas", CategoriaController.receitas);
-
-routes.put("/altera/:id", MovimentacaoController.update);
 routes.post(
   "/novamovimentacao",
   //   celebrate({
