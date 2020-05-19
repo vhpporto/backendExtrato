@@ -23,14 +23,23 @@ module.exports = {
 
   async create(req, res) {
     const { descricao, valor, data, entrada, categoria, id } = req.body;
-    const valorFinal = valor / 100;
+    const destiny = `SELECT Email FROM Usuario WHERE id = ${id}`;
+    var teste = "teste1";
+    await db.query(destiny, (err, result) => {
+      if (err) throw err;
+      const [{ Email }] = result;
+      teste = Email;
+      return Email;
+    });
+    console.log(teste);
     const sql = `call sp_insere_movimentacao(${descricao}, ${valor}, ${categoria}, '${data}', ${entrada}, ${id})`;
+    const valorFinal = valor / 100;
     const dataFormatada = data.split("-");
     await db.query(sql, (err, result, fields) => {
       if (err) throw err;
       const mailOptions = {
         from: process.env.EMAIL,
-        to: "vhpporto@gmail.com",
+        to: destiny,
         subject: "Nova movimentação",
         html: `<h1>Nova movimentação</h1> <h3>${descricao} <br> R$ ${parseFloat(
           valorFinal

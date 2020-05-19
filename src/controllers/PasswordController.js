@@ -14,17 +14,24 @@ const transporter = nodemailer.createTransport({
 module.exports = {
   async esqueceuSenha(req, res) {
     const { email } = req.body;
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: email,
-      subject: "REDEFINIR SENHA",
-      html: `<h1>Nova movimentação</h1> <h3> CLique aqui para redefinir sua senha</h3>`,
-    };
+
     const sql = `CALL sp_busca_esqueceu_senha(${JSON.stringify(email)})`;
     db.query(sql, (err, result) => {
       if (err) throw err;
 
       res.json(result[0]);
+
+      const max = 9999;
+      const min = 1000;
+      let codigo = Math.floor(Math.random() * (max - min)) + min;
+      console.log(codigo);
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: "REDEFINIR SENHA",
+        html: `<h3>Insira o código abaixo no aplicativo para redefinir sua senha</h3> <h1>${codigo}</h1>`,
+      };
 
       const [{ erro }] = result[0];
       if (erro === 0)
