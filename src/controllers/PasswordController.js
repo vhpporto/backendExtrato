@@ -18,13 +18,13 @@ module.exports = {
     const sql = `CALL sp_busca_esqueceu_senha(${JSON.stringify(email)})`;
     db.query(sql, (err, result) => {
       if (err) throw err;
-
-      res.json(result[0]);
-
       const max = 9999;
       const min = 1000;
       let codigo = Math.floor(Math.random() * (max - min)) + min;
-      console.log(codigo);
+
+      result[0].codigo = codigo;
+      res.json(result[0]);
+      console.log(result[0]);
 
       const mailOptions = {
         from: process.env.EMAIL,
@@ -34,7 +34,7 @@ module.exports = {
       };
 
       const [{ erro }] = result[0];
-      if (erro === 0)
+      if (erro === 0) {
         transporter.sendMail(mailOptions, function (error, info) {
           if (error) {
             console.log(error);
@@ -42,6 +42,7 @@ module.exports = {
             console.log("Email enviado.." + info.response);
           }
         });
+      }
     });
   },
 };
