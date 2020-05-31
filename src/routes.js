@@ -9,6 +9,11 @@ const PasswordController = require("./controllers/PasswordController");
 
 const routes = express.Router();
 
+routes.post("/pescodigos", (req, res) => {
+  const { data } = req.body;
+  res.json(data);
+});
+
 routes.post("/login", UserController.index);
 routes.post("/registro", UserController.create);
 
@@ -19,7 +24,7 @@ routes.get("/categoriareceitas", CategoriaController.receitas);
 
 routes.post("/esqueceusenha", PasswordController.esqueceuSenha);
 
-routes.delete("/delete/:id", MovimentacaoController.delete);
+routes.delete("/delete/:id/:movimentacao", MovimentacaoController.delete);
 routes.put("/altera/:id", MovimentacaoController.update);
 routes.post("/extrato", MovimentacaoController.buscaGeral);
 routes.post(

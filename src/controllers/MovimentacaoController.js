@@ -81,12 +81,12 @@ module.exports = {
   },
 
   async delete(req, res) {
-    const { id } = req.params;
-    const sql = `CALL sp_remove_movimentacao(${id})`;
+    const { id, movimentacao } = req.params;
+    const sql = `CALL sp_remove_movimentacao(${id}, ${movimentacao})`;
     db.query(sql, (err, result) => {
       if (err) throw err;
       console.log("id " + id);
-      res.status(200).send("Movimentação removida!");
+      res.status(200).json(result[0]);
     });
   },
 
