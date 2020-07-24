@@ -17,29 +17,24 @@ module.exports = {
     const sql = await `CALL sp_busca_movimentacoes(${id})`;
     await db.query(sql, (err, result) => {
       if (err) throw err;
-      res.json(result[0]);
+      res.json(result);
     });
   },
 
   async create(req, res) {
     const { descricao, valor, data, entrada, categoria, id } = req.body;
-    const destiny = `SELECT Email FROM Usuario WHERE id = ${id}`;
-    var teste = "teste1";
-    await db.query(destiny, (err, result) => {
-      if (err) throw err;
-      const [{ Email }] = result;
-      teste = Email;
-      return Email;
-    });
-    console.log(teste);
     const sql = `call sp_insere_movimentacao(${descricao}, ${valor}, ${categoria}, '${data}', ${entrada}, ${id})`;
     const valorFinal = valor / 100;
     const dataFormatada = data.split("-");
+    // console.log(`Email ? ${emailDestiny}`);
     await db.query(sql, (err, result, fields) => {
       if (err) throw err;
+      console.log(
+        `email retorno sp -> ${JSON.stringify(result[0][0].emailDestino)}`
+      );
       const mailOptions = {
         from: process.env.EMAIL,
-        to: destiny,
+        to: result[0][0].emailDestino,
         subject: "Nova movimentação",
         html: `<h1>Nova movimentação</h1> <h3>${descricao} <br> R$ ${parseFloat(
           valorFinal
